@@ -1,0 +1,70 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <cmath>
+
+/*
+Una empresa decidió, con el objetivo de evitar declarar su patrimonio, borrar los signos de los valores en su libro de cuentas. 
+Es decir, si en el libro de cuentas figuraban las entradas 500, -700 indicando una venta por 500 pesos y una compra por 700, ahora solo se lee 500, 700, 
+perdiendo luego la distinción entre gasto y venta que acarreaba el signo. No obstante, la empresa olvidó borrar el signo de los saldos finales. 
+Por lo tanto, en el ejemplo anterior, se conoce que la suma de las entradas es -200. 
+Se le pide desarrollar un programa que permita indicar, para cada una de las entradas del libro de cuentas, 
+si esta es inequívocamente un gasto o una venta, o si bien puede ser cualquiera de las dos
+*/
+
+/* Entrada
+La entrada contiene múltiples casos de test. La primera línea consiste de un número c indicando su cantidad.
+La primera línea de cada caso contiene dos números: un entero N indicando la cantidad de entradas del libro y el saldo final W.
+En la siguiente línea se encuentran los N valores xi de cada fila del libro de cuentas
+Cada xi es un múltiplo de 100.
+*/
+
+/* Salida
+Para cada caso de test se debe imprimir una línea con N caracteres indicando la situación de cada entrada. 
+Si la i-ésima entrada del libro es un gasto, entonces el i-ésimo caracter debe ser un símbolo −
+Mientras que si es una venta entonces debe ser un símbolo +. 
+Por otro lado, si puede ser tanto uno como lo otro, se debe imprimir el símbolo ?.
+*/
+
+using namespace std;
+
+vector<int> entradas;
+int c, n, w;
+string resp;
+vector<string> respuestas;
+
+bool simbolos(int i, int s, string res){
+    if (i == entradas.size()) {if (s == w){resp = res;} return s == w;}
+    bool suma = simbolos(i+1, s + entradas[i], res + "+");
+    bool resta = simbolos(i+1, s - entradas[i], res + "-");
+    
+    if (suma && resta) {return simbolos(i+1, s, res + "?");}
+    else if (suma) {return simbolos(i+1, s, res + "+");}
+    else if (resta) {return simbolos(i+1, s, res + "-");}
+    return suma || resta;
+}
+
+int main()
+{
+    cin >> c;
+    for (int i = 0; i < c; i++)
+    {
+        cin >> n >> w;
+        entradas.clear();
+        for (int j = 0; j < n; j++)
+        {
+            int x;
+            cin >> x;
+            entradas.push_back(x);
+        }
+        respuestas.push_back(resp);
+    }
+    
+    for (int i = 0; i < respuestas.size(); i++)
+    {
+        cout << respuestas[i] << endl;
+    }
+    
+    return 0;
+}
