@@ -30,35 +30,37 @@ Por otro lado, si puede ser tanto uno como lo otro, se debe imprimir el símbolo
 using namespace std;
 
 vector<int> entradas;
-int c, n, w;
-string resp;
+int C, N, W;
 vector<string> respuestas;
+vector<pair<int, int>> posibles;
+int max_total;
 
-bool simbolos(int i, int s, string res){
-    if (i == entradas.size()) {if (s == w){resp = res;} return s == w;}
-    bool suma = simbolos(i+1, s + entradas[i], res + "+");
-    bool resta = simbolos(i+1, s - entradas[i], res + "-");
-    
-    if (suma && resta) {return simbolos(i+1, s, res + "?");}
-    else if (suma) {return simbolos(i+1, s, res + "+");}
-    else if (resta) {return simbolos(i+1, s, res + "-");}
+bool simbolos(int i, int s){
+    if (i == N) {return s == W;}
+    bool suma = simbolos(i+1, s + entradas[i]);
+    bool resta = simbolos(i+1, s - entradas[i]);
+
+    if (suma & resta) {
+    }
     return suma || resta;
 }
 
 int main()
 {
-    cin >> c;
-    for (int i = 0; i < c; i++)
+    cin >> C;
+    respuestas.clear();
+    for (int i = 0; i < C; i++)
     {
-        cin >> n >> w;
+        cin >> N >> W;
         entradas.clear();
-        for (int j = 0; j < n; j++)
+        for (int j = 0; j < N; j++)
         {
-            int x;
-            cin >> x;
-            entradas.push_back(x);
+            int t;
+            cin >> entradas[j];
+            max_total += entradas[j];
         }
-        respuestas.push_back(resp);
+
+
     }
     
     for (int i = 0; i < respuestas.size(); i++)
