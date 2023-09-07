@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <utility>
 #include <cmath>
 
 /*
@@ -29,19 +30,34 @@ Por otro lado, si puede ser tanto uno como lo otro, se debe imprimir el símbolo
 
 using namespace std;
 
-vector<int> entradas;
-int C, N, W;
+vector<long long> entradas;
+long long C, N, W;
 vector<string> respuestas;
-vector<pair<int, int>> posibles;
-int max_total;
+vector<pair<long long, long long>> posibles;
+long long max_total;
+string respuesta;
+vector<vector<pair<long long, long long>>> memo;
 
-bool simbolos(int i, int s){
+bool simbolos(long long i, long long s){
     if (i == N) {return s == W;}
+    if (memo[i][s + max_total].first != -1 && memo[i][s + max_total].second != -1) {
+        posibles[i] = memo[i][s + max_total];
+        return memo[i][s + max_total].first > 0 || memo[i][s + max_total].second > 0;
+    } else if (memo[i][s + max_total].first != -1) {
+        posibles[i].first = memo[i][s + max_total].first;
+        return memo[i][s + max_total].first > 0;
+    } else if (memo[i][s + max_total].second != -1) {
+        posibles[i].second = memo[i][s + max_total].second;
+        return memo[i][s + max_total].second > 0;
+    }
+
     bool suma = simbolos(i+1, s + entradas[i]);
     bool resta = simbolos(i+1, s - entradas[i]);
 
-    if (suma & resta) {
-    }
+    posibles[i] = {max(posibles[i].first + suma? 1 : 0 , 0), max(posibles[i].second + resta? 1 : 0, 0) };
+
+    memo[i][s + max_total] = posibles[i];
+
     return suma || resta;
 }
 
@@ -49,24 +65,44 @@ int main()
 {
     cin >> C;
     respuestas.clear();
-    for (int i = 0; i < C; i++)
+    for (long long i = 0; i < C; i++)
     {
         cin >> N >> W;
+        W = W / 100;
         entradas.clear();
-        for (int j = 0; j < N; j++)
-        {
-            int t;
-            cin >> entradas[j];
-            max_total += entradas[j];
+        entradas.resize(N, 0);
+
+        posibles.clear();
+        posibles.resize(N, {0, 0});
+
+        max_total = 0;
+        respuesta = "";
+        memo.clear();
+
+        for (long long j = 0; j < N; j++) {
+            long long t;
+            cin >> t;
+            entradas[j] = t / 100;
+            max_total += t / 100;
         }
 
+        memo.resize(N, vector<pair<long long, long long>>(max_total * 2 + 1, {-1, -1}));
+        simbolos(0, 0);
 
+        for (long long j = 0; j < N; j++){
+            if (posibles[j].first > 0 && posibles[j].second > 0){
+                respuesta += "?";
+            } else if (posibles[j].first > 0) {
+                respuesta += "+";
+            } else if (posibles[j].second > 0) {
+                respuesta += "-";
+            }
+        }
+        respuestas.push_back(respuesta);
     }
     
-    for (int i = 0; i < respuestas.size(); i++)
-    {
+    for (long long i = 0; i < respuestas.size(); i++) {
         cout << respuestas[i] << endl;
     }
-    
     return 0;
 }
