@@ -3,14 +3,13 @@
 #include <string>
 #include <algorithm>
 #include <utility>
-#include <cmath>
 
 /*
-Una empresa decidió, con el objetivo de evitar declarar su patrimonio, borrar los signos de los valores en su libro de cuentas. 
-Es decir, si en el libro de cuentas figuraban las entradas 500, -700 indicando una venta por 500 pesos y una compra por 700, ahora solo se lee 500, 700, 
-perdiendo luego la distinción entre gasto y venta que acarreaba el signo. No obstante, la empresa olvidó borrar el signo de los saldos finales. 
-Por lo tanto, en el ejemplo anterior, se conoce que la suma de las entradas es -200. 
-Se le pide desarrollar un programa que permita indicar, para cada una de las entradas del libro de cuentas, 
+Una empresa decidió, con el objetivo de evitar declarar su patrimonio, borrar los signos de los valores en su libro de cuentas.
+Es decir, si en el libro de cuentas figuraban las entradas 500, -700 indicando una venta por 500 pesos y una compra por 700, ahora solo se lee 500, 700,
+perdiendo luego la distinción entre gasto y venta que acarreaba el signo. No obstante, la empresa olvidó borrar el signo de los saldos finales.
+Por lo tanto, en el ejemplo anterior, se conoce que la suma de las entradas es -200.
+Se le pide desarrollar un programa que permita indicar, para cada una de las entradas del libro de cuentas,
 si esta es inequívocamente un gasto o una venta, o si bien puede ser cualquiera de las dos
 */
 
@@ -22,9 +21,9 @@ Cada xi es un múltiplo de 100.
 */
 
 /* Salida
-Para cada caso de test se debe imprimir una línea con N caracteres indicando la situación de cada entrada. 
+Para cada caso de test se debe imprimir una línea con N caracteres indicando la situación de cada entrada.
 Si la i-ésima entrada del libro es un gasto, entonces el i-ésimo caracter debe ser un símbolo −
-Mientras que si es una venta entonces debe ser un símbolo +. 
+Mientras que si es una venta entonces debe ser un símbolo +.
 Por otro lado, si puede ser tanto uno como lo otro, se debe imprimir el símbolo ?.
 */
 
@@ -40,21 +39,21 @@ vector<vector<pair<long long, long long>>> memo;
 
 bool simbolos(long long i, long long s){
     if (i == N) {return s == W;}
-    if (memo[i][s + max_total].first != -1 && memo[i][s + max_total].second != -1) {
-        posibles[i] = memo[i][s + max_total];
-        return memo[i][s + max_total].first > 0 || memo[i][s + max_total].second > 0;
-    } else if (memo[i][s + max_total].first != -1) {
-        posibles[i].first = memo[i][s + max_total].first;
-        return memo[i][s + max_total].first > 0;
-    } else if (memo[i][s + max_total].second != -1) {
-        posibles[i].second = memo[i][s + max_total].second;
-        return memo[i][s + max_total].second > 0;
+
+    bool suma, resta;
+    if (memo[i][s + max_total].first != -1) {
+        suma = memo[i][s + max_total].first;
+    } else {
+        suma = simbolos(i+1, s + entradas[i]);
     }
 
-    bool suma = simbolos(i+1, s + entradas[i]);
-    bool resta = simbolos(i+1, s - entradas[i]);
+    if (memo[i][s + max_total].second != -1) {
+        resta = memo[i][s + max_total].second;
+    } else {
+        resta = simbolos(i+1, s - entradas[i]);
+    }
 
-    posibles[i] = {max(posibles[i].first + suma? 1 : 0 , 0), max(posibles[i].second + resta? 1 : 0, 0) };
+    posibles[i] = {posibles[i].first + suma, posibles[i].second + resta};
 
     memo[i][s + max_total] = posibles[i];
 
@@ -100,7 +99,7 @@ int main()
         }
         respuestas.push_back(respuesta);
     }
-    
+
     for (long long i = 0; i < respuestas.size(); i++) {
         cout << respuestas[i] << endl;
     }
