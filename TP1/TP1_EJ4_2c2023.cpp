@@ -1,68 +1,93 @@
 #include <iostream>
-#include <string>
 #include <vector>
+#include <climits>
 
 using namespace std;
-int C, N, K;
-vector<int> puestos;
-vector<bool> proveedores;
 
-int costoTotal(){
-    int costo = 0;
-    for (int i = 0; i < N; i++) {
-        int costoMinimo = 10000;
-        for (int j = 0; j < N; j++) {
-            if (proveedores[j]) {
-                int costoActual = abs(puestos[i] - puestos[j]);
-                if (costoActual < costoMinimo) {
-                    costoMinimo = costoActual;
-                }
-            }
+long long C, N, K;
+long long mejor_costo;
+vector<long long> puestos;
+vector<long long> proveedores;
+vector<long long> mejor_proveedores;
+vector<vector<long long>> memo;
+
+long long costoTotal() {
+    long long costo = 0;
+    for (long long puesto : puestos) {
+        long long costoMinimo = LLONG_MAX;
+        for (long long prov : proveedores) {
+            costoMinimo = min(costoMinimo, abs(puesto - prov));
         }
         costo += costoMinimo;
     }
     return costo;
 }
 
-int costoMinimoTotal(int i, int k) {
-    if (i == N && k != 0) {return 10000;}
+long long costoMinimoTotal(long long i, long long k) {
+    if (i >= N && k != 0) {
+        return LLONG_MAX;
+    }
     if (k == 0) {
-        return costoTotal();
-    }
-    int costoMinimo = 10000;
-    for (int j = i; j < N; j++) {
-        proveedores[j] = true;
-        int costo = costoMinimoTotal(i + 1, k - 1);
-        if (costo < costoMinimo) {
-            costoMinimo = costo;
+        long long costo = costoTotal();
+        if (costo < mejor_costo) {
+            mejor_costo = costo;
+            mejor_proveedores = proveedores;
         }
-        proveedores[j] = false;
+        return costo;
     }
+    if (memo[i][k] != -1) {
+        return memo[i][k];
+    }
+
+    long long costoMinimo = LLONG_MAX;
+    for (long long j = i; j < N; j++) {
+        proveedores.push_back(puestos[j]);
+
+        costoMinimo = min(costoMinimo, costoMinimoTotal(j + 1, k - 1));
+
+        proveedores.pop_back();
+    }
+    memo[i][k] = costoMinimo;
+
     return costoMinimo;
 }
 
+
 int main() {
-    vector<int> respuestas;
-    int respuesta;
+    vector<long long> respuestas;
+    vector<vector<long long>> disposiciones;
 
     cin >> C;
-    for (int c = 0; c < C; c++) {
+    for (long long c = 0; c < C; c++) {
         puestos.clear();
         proveedores.clear();
-        cin >> N >> K;
+        mejor_costo = LLONG_MAX;
+        mejor_proveedores.clear();
+        memo.clear();
 
-        for (int i = 0; i < N; i++) {
-            int p;
+        cin >> N >> K;
+        memo.resize(N, vector<long long>(K+1, -1));
+
+        for (long long i = 0; i < N; i++) {
+            long long p;
             cin >> p;
             puestos.push_back(p);
         }
-        proveedores.resize(N, false);
 
-        respuesta = costoMinimoTotal(0, K);
-        respuestas.push_back(respuesta);
+        costoMinimoTotal(0, K);
+        
+        respuestas.push_back(mejor_costo);
+        disposiciones.push_back(mejor_proveedores);
     }
-    for (int i = 0; i < respuestas.size(); i++) {
+    for (long long i = 0; i < respuestas.size(); i++) {
         cout << respuestas[i] << endl;
+        for (long long j = 0; j < disposiciones[i].size(); j++) {
+            cout << disposiciones[i][j];
+            if (j != disposiciones[i].size() - 1) {
+                cout << " ";
+            }
+        }
+        cout << endl;
     }
 
     return 0;
