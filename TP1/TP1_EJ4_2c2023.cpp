@@ -14,7 +14,7 @@ vector<vector<long long>> memo;
 long long costoTotal() {
     long long costo = 0;
     for (long long puesto : puestos) {
-        long long costoMinimo = LLONG_MAX;
+        long long costoMinimo = INT_MAX;
         for (long long prov : proveedores) {
             costoMinimo = min(costoMinimo, abs(puesto - prov));
         }
@@ -24,29 +24,33 @@ long long costoTotal() {
 }
 
 long long costoMinimoTotal(long long i, long long k) {
-    if (i >= N && k != 0) {
-        return LLONG_MAX;
+    if (i >= N && k > 0) {
+        return INT_MAX;
     }
-    if (k == 0) {
+    if (k <= 0) {
         long long costo = costoTotal();
+
         if (costo < mejor_costo) {
             mejor_costo = costo;
             mejor_proveedores = proveedores;
         }
+
         return costo;
     }
     if (memo[i][k] != -1) {
         return memo[i][k];
     }
 
-    long long costoMinimo = LLONG_MAX;
-    for (long long j = i; j < N; j++) {
+    long long costoMinimo = INT_MAX;
+    for (long long j = i; j < N ; j++){
+
         proveedores.push_back(puestos[j]);
 
-        costoMinimo = min(costoMinimo, costoMinimoTotal(j + 1, k - 1));
+        costoMinimo = min(costoMinimo, costoMinimoTotal(j+1, k-1));
 
         proveedores.pop_back();
     }
+
     memo[i][k] = costoMinimo;
 
     return costoMinimo;
@@ -61,7 +65,7 @@ int main() {
     for (long long c = 0; c < C; c++) {
         puestos.clear();
         proveedores.clear();
-        mejor_costo = LLONG_MAX;
+        mejor_costo = INT_MAX;
         mejor_proveedores.clear();
         memo.clear();
 
@@ -75,7 +79,7 @@ int main() {
         }
 
         costoMinimoTotal(0, K);
-        
+
         respuestas.push_back(mejor_costo);
         disposiciones.push_back(mejor_proveedores);
     }
